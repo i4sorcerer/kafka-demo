@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="consumerProperties" class="java.util.HashMap">
+        <constructor-arg>
+            <map>
+                <entry key="bootstrap.servers" value="192.168.146.130:9092，192.168.146.130:9093，192.168.146.130:9094"/>
+                <entry key="enable.auto.commit" value="true"/>
+                <entry key="auto.commit.interval.ms" value="1000"/>
+                <entry key="group.id" value="SpringbootConsumerGrp1"/>
+                <entry key="auto.offset.reset" value="earliest"/>
+                <entry key="key.deserializer" value="org.apache.kafka.common.serialization.StringDeserializer"/>
+                <entry key="value.deserializer" value="org.apache.kafka.common.serialization.StringDeserializer"/>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="kafkaDefConsumerFactory" class="org.springframework.kafka.core.DefaultKafkaConsumerFactory">
+        <constructor-arg ref="consumerProperties"/>
+    </bean>
+    <bean id="kafkaConsumerListener" class="kafka.demo.listener.KafkaConsumerListener"/>
+
+    <bean id="containerProperties" class="org.springframework.kafka.listener.ContainerProperties">
+        <constructor-arg name="topics" value="demo-topic"/>
+        <property name="messageListener" ref="kafkaConsumerListener"/>
+    </bean>
+    <bean id="kafkaMessageListenerContainer" class="org.springframework.kafka.listener.KafkaMessageListenerContainer" init-method="doStart">
+        <constructor-arg ref="kafkaDefConsumerFactory"/>
+        <constructor-arg ref="containerProperties"></constructor-arg>
+    </bean>
+</beans>
